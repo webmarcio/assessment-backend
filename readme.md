@@ -15,15 +15,16 @@ Não existe certo ou errado, queremos saber como você se sai em situações rea
 - Utilize boas práticas de programação
 - Utilize boas práticas de git
 - Documentar como rodar o projeto
-- Crie uma documentação simples comentando sobre as tecnologias e soluções adotadas
+- Crie uma documentação simples comentando sobre as tecnologias, versões e soluções adotadas
 
 # Requisitos
+- O sistema deverá ser desenvolvido utilizando a linguagem PHP (de preferência a versão mais nova)
 - Você deve criar um CRUD que permita cadastrar as seguintes informações:
 	- **Produto**: Nome, SKU (Código), preço, descrição, quantidade e categoria (cada produto pode conter uma ou mais categorias)
 	- **Categoria**: Código e nome.
 - Salvar as informações necessárias em um banco de dados (relacional ou não), de sua escolha
-- Gerar logs das ações
 - Criar um importador de produtos/categorias via CLI no formato  de CSV. Importar o arquivo disponibilizado no repositório (assets/import.csv).
+- Gerar logs das ações (diferencial)
 - Testes automatizados com informação da cobertura de testes (diferencial)
 - Como um desafio adicional você pode implementar o upload de imagem no cadastro de produtos
 
