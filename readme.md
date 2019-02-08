@@ -1,3 +1,7 @@
+Você quer ser um desenvolvedor Backend na Web Jump?
+
+Criamos esse teste para avaliar seus conhecimentos e habilidades como desenvolvedor backend.
+
 # O teste
 O desafio é desenvolver um sistema de gerenciamento de produtos. Esse sistema será composto de um cadastro de produtos e categorias. Os requisitos desse sistema estão listados nos tópicos abaixo.
 Não existe certo ou errado, queremos saber como você se sai em situações reais como esse desafio.
@@ -19,7 +23,7 @@ Não existe certo ou errado, queremos saber como você se sai em situações rea
 	- **Categoria**: Código e nome.
 - Salvar as informações necessárias em um banco de dados (relacional ou não), de sua escolha
 - Gerar logs das ações
-- Criar um importador de produtos/categorias via CLI no formato  de CSV. Importar o arquivo disponibilizado no diretório assets.
+- Criar um importador de produtos/categorias via CLI no formato  de CSV. Importar o arquivo disponibilizado no repositório (assets/import.csv).
 - Testes automatizados com informação da cobertura de testes (diferencial)
 - Como um desafio adicional você pode implementar o upload de imagem no cadastro de produtos
 
