@@ -17,7 +17,7 @@ Não existe certo ou errado, queremos saber como você se sai em situações rea
 - Crie uma documentação simples comentando sobre as tecnologias, versões e soluções adotadas
 
 # Requisitos
-- O sistema deverá ser desenvolvido utilizando a linguagem PHP (de preferência a versão mais nova)
+- O sistema deverá ser desenvolvido utilizando a linguagem PHP (de preferência a versão mais nova) ou outra linguagem se assim foi especificado para sua avaliação por nossa equipe.
 - Você deve criar um CRUD que permita cadastrar as seguintes informações:
 	- **Produto**: Nome, SKU (Código), preço, descrição, quantidade e categoria (cada produto pode conter uma ou mais categorias)
 	- **Categoria**: Código e nome.
