@@ -6,5 +6,10 @@ routes.get('/category/:id', categoryController.get);
 routes.post('/category', categoryController.store);
 routes.put('/category/:id', categoryController.update);
 routes.delete('/category/:id', categoryController.delete);
+routes.delete(
+  '/remove-category-product',
+  categoryController.removeCategoryProduct,
+);
+routes.post('/add-category-product', categoryController.addCategoryProduct);
 
 module.exports = routes;

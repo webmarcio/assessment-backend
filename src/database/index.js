@@ -11,4 +11,8 @@ Product.init(connection);
 Log.init(connection);
 Category.init(connection);
 
+// Associations
+Product.associate(connection.models);
+Category.associate(connection.models);
+
 module.exports = connection;

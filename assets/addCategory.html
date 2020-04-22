@@ -39,22 +39,22 @@
 <!-- Header -->
   <!-- Main Content -->
   <main class="content">
-    <h1 class="title new-item">New Category</h1>
+    <h1 class="title new-item">Nova Categoria</h1>
     
-    <form>
+    <form id="frm-add-category">
       <div class="input-field">
-        <label for="category-name" class="label">Category Name</label>
-        <input type="text" id="category-name" class="input-text" />
+        <label for="category-name" class="label">Nome da Categoria</label>
+        <input type="text" id="category-name" name="name" class="input-text" />
         
       </div>
       <div class="input-field">
-        <label for="category-code" class="label">Category Code</label>
-        <input type="text" id="category-code" class="input-text" />
+        <label for="category-code" class="label">Código da Categoria</label>
+        <input type="text" id="category-code" name="code" class="input-text" />
         
       </div>
       <div class="actions-form">
-        <a href="categories.html" class="action back">Back</a>
-        <input class="btn-submit btn-action"  type="submit" value="Save" />
+        <a href="categories.html" class="action back">Voltar</a>
+        <input class="btn-submit btn-action"  type="button" value="Save" />
       </div>
     </form>
   </main>
@@ -69,5 +69,30 @@
 	  <span>go@jumpers.com.br</span>
 	</div>
 </footer>
- <!-- Footer --></body>
+ <!-- Footer -->
+ <script
+ src="https://code.jquery.com/jquery-3.5.0.min.js"
+ integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+ crossorigin="anonymous"
+></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+  $('.btn-submit').on('click', function() {
+    $.ajax({
+      method: 'POST',
+      url: 'http://localhost:3000/category',
+      dataType: 'json',
+      data: {
+        name: $('#category-name').val(),
+        code: $('#category-code').val(),
+      },
+      success: function(data) {
+        swal('Sucesso!', 'Categoria adicionada!', 'success');
+        $('#category-name').val(null);
+        $('#category-code').val(null);
+      },
+    })
+  });
+</script>
+</body>
 </html>

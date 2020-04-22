@@ -1,6 +1,8 @@
 const { Op } = require('sequelize');
+
 const Log = require('../models/Log');
 const Category = require('../models/Category');
+const Product = require('../models/Product');
 
 const makeCode = async (length) => {
   let result = '';
@@ -25,6 +27,7 @@ const categories = {
       let query = {
         order: [['created_at', 'DESC']],
         where: { active: true },
+        include: { association: 'products' },
       };
 
       if (startDate && endDate) {
@@ -71,7 +74,9 @@ const categories = {
   async get(req, res, next) {
     try {
       const { id } = req.params;
-      const category = await Category.findByPk(id);
+      const category = await Category.findByPk(id, {
+        include: { association: 'products' },
+      });
 
       await Log.create({
         log: `${new Date()} - O produto ${category.name} com id ${
@@ -90,20 +95,26 @@ const categories = {
   },
   async store(req, res, next) {
     try {
-      const { name } = req.body;
-      const code = await makeCode(10);
+      const { name, code, productId } = req.body;
+      // const code = await makeCode(10);
       let category;
+      let product;
 
       try {
-        category = await Category.create({
-          name,
-          code,
-          active: true,
+        [category] = await Category.findOrCreate({
+          where: { name, code, active: true },
         });
 
+        if (productId) {
+          product = await Product.findByPk(productId);
+
+          if (!product) return res.status(400).json('Product not found.');
+          await product.addCategory(category);
+        }
+
         await Log.create({
-          log: `${new Date()} - O produto ${product.name} com id ${
-            product.id
+          log: `${new Date()} - A Categoria ${category.name} com id ${
+            category.id
           } foi criado com sucesso.`,
         });
       } catch (error) {
@@ -210,6 +221,57 @@ const categories = {
       await Log.create({
         log: `${new Date()} - Falha interna. Detalhes: ${error}`,
       });
+      return res.status(500).json('Internal Server Error');
+    }
+  },
+  async removeCategoryProduct(req, res, next) {
+    try {
+      const { idCategory, productId } = req.body;
+
+      product = await Product.findByPk(productId);
+
+      if (!product) return res.status(400).json('Product not found.');
+
+      category = await Category.findOne({
+        where: { id: idCategory },
+      });
+
+      await product.removeCategory(category);
+      await Log.create({
+        log: `${new Date()} - Categoria ${category.name} removida do produto ${
+          product.name
+        }.`,
+      });
+
+      return res.status(200).json('Categoria removida do produto');
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json('Internal Server Error');
+    }
+  },
+  async addCategoryProduct(req, res, next) {
+    try {
+      const { idCategory, productId } = req.body;
+
+      product = await Product.findByPk(productId);
+
+      if (!product) return res.status(400).json('Product not found.');
+
+      category = await Category.findOne({
+        where: { id: idCategory },
+      });
+
+      await product.addCategory(category);
+
+      await Log.create({
+        log: `${new Date()} - Categoria ${
+          category.name
+        } adicionada ao produto ${product.name}.`,
+      });
+
+      return res.status(200).json('Categoria adicionada ao produto');
+    } catch (error) {
+      console.log(error);
       return res.status(500).json('Internal Server Error');
     }
   },

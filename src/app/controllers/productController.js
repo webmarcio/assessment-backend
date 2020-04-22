@@ -1,6 +1,21 @@
 const { Op } = require('sequelize');
+const fs = require('fs');
 const Product = require('../models/Product');
+const Category = require('../models/Category');
 const Log = require('../models/Log');
+const XLSX = require('xlsx');
+
+const makeCode = async (length) => {
+  let result = '';
+  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let charactersLength = characters.length;
+
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+
+  return result;
+};
 
 const product = {
   async index(req, res, next) {
@@ -13,6 +28,7 @@ const product = {
       let query = {
         order: [['created_at', 'DESC']],
         where: { active: true },
+        include: { association: 'categories' },
       };
 
       if (startDate && endDate) {
@@ -59,7 +75,9 @@ const product = {
   async get(req, res, next) {
     try {
       const { id } = req.params;
-      const product = await Product.findByPk(id);
+      const product = await Product.findByPk(id, {
+        include: { association: 'categories' },
+      });
 
       await Log.create({
         log: `${new Date()} - O produto ${product.name} com id ${
@@ -78,7 +96,8 @@ const product = {
   },
   async store(req, res, next) {
     try {
-      const { name, sku, description, amount } = req.body;
+      const { name, sku, description, amount, categories } = req.body;
+
       let price;
       let product;
 
@@ -96,7 +115,14 @@ const product = {
           description,
           amount,
           active: true,
+          image: req.file.filename,
         });
+
+        product = await Product.findByPk(product.id, {
+          include: { association: 'categories' },
+        });
+
+        await product.addCategory(categories);
 
         await Log.create({
           log: `${new Date()} - O produto ${product.name} com id ${
@@ -241,6 +267,63 @@ const product = {
       }
 
       return res.status(400).json({ message: 'Falha ao remover o produto' });
+    } catch (error) {
+      console.log(error);
+      await Log.create({
+        log: `${new Date()} - Falha interna. Detalhes: ${error}`,
+      });
+      return res.status(500).json('Internal Server Error');
+    }
+  },
+  async uploadFileAndStore(req, res, next) {
+    try {
+      await fs.access(req.file.path, fs.constants.F_OK, async (err) => {
+        if (!err) {
+          file = fs.readFileSync(req.file.path);
+          await fs.unlink(req.file.path, (err) => {
+            if (err) throw err;
+            console.log('Arquivo de base deletado com sucesso!');
+          });
+
+          const data = new Uint8Array(file);
+          let arr = new Array();
+          for (let i = 0; i != data.length; ++i) {
+            arr[i] = String.fromCharCode(data[i]);
+          }
+          const bstr = arr.join('');
+          const workbook = XLSX.read(bstr, {
+            type: 'binary',
+          });
+          const first_sheet_name = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[first_sheet_name];
+          const json = XLSX.utils.sheet_to_json(worksheet, {
+            raw: true,
+          });
+          for (register of json) {
+            let obj = {};
+            for (key in register) {
+              if (key === 'nome') obj.name = register[key];
+              if (key === 'sku') obj.sku = register[key];
+              if (key === 'descricao') obj.description = register[key];
+              if (key === 'quantidade') obj.amount = register[key];
+              if (key === 'preco') obj.price = register[key];
+            }
+            obj.active = true;
+            let product = await Product.create(obj);
+            let categories = register.categoria
+              ? register.categoria.split('|')
+              : [];
+            for (cat of categories) {
+              let code = await makeCode(10);
+              let [res] = await Category.findOrCreate({
+                where: { name: cat, code, active: true },
+              });
+              await product.addCategory(res);
+            }
+          }
+        }
+      });
+      return res.send();
     } catch (error) {
       console.log(error);
       await Log.create({

@@ -39,41 +39,53 @@
 <!-- Header -->
   <!-- Main Content -->
   <main class="content">
-    <h1 class="title new-item">New Product</h1>
-    
+    <h1 class="title new-item">Novo Produto</h1>
+
+    <form enctype="multipart/form-data">
+      <div class="input-field">
+        <label for="sku" class="label">Upload em Massa (CSV)</label>
+        <input type="file" id="fileUpload" class="input-text" />
+        <button id="btn-send-file" class="btn-action" type="button">Enviar</button>
+      </div>
+    </form>
+    <hr>
+
+
     <form>
       <div class="input-field">
-        <label for="sku" class="label">Product SKU</label>
+        <label for="fileImage" class="label">Imagem do Produto</label>
+        <input type="file" id="fileImage" class="input-text" /> 
+      </div>
+
+      <div class="input-field">
+        <label for="sku" class="label">SKU do Produto</label>
         <input type="text" id="sku" class="input-text" /> 
       </div>
+
       <div class="input-field">
-        <label for="name" class="label">Product Name</label>
+        <label for="name" class="label">Nome do Produto</label>
         <input type="text" id="name" class="input-text" /> 
       </div>
       <div class="input-field">
-        <label for="price" class="label">Price</label>
+        <label for="price" class="label">Preço</label>
         <input type="text" id="price" class="input-text" /> 
       </div>
       <div class="input-field">
-        <label for="quantity" class="label">Quantity</label>
+        <label for="quantity" class="label">Quantidade</label>
         <input type="text" id="quantity" class="input-text" /> 
       </div>
       <div class="input-field">
-        <label for="category" class="label">Categories</label>
+        <label for="category" class="label">Categorias</label>
         <select multiple id="category" class="input-text">
-          <option>Category 1</option>
-          <option>Category 2</option>
-          <option>Category 3</option>
-          <option>Category 4</option>
         </select>
       </div>
       <div class="input-field">
-        <label for="description" class="label">Description</label>
+        <label for="description" class="label">Descrição</label>
         <textarea id="description" class="input-text"></textarea>
       </div>
       <div class="actions-form">
-        <a href="products.html" class="action back">Back</a>
-        <input class="btn-submit btn-action" type="submit" value="Save Product" />
+        <a href="products.html" class="action back">Voltar</a>
+        <input class="btn-submit btn-action" type="button" value="Salvar Produto" />
       </div>
       
     </form>
@@ -89,5 +101,89 @@
 	  <span>go@jumpers.com.br</span>
 	</div>
 </footer>
- <!-- Footer --></body>
+ <!-- Footer -->
+ <script
+ src="https://code.jquery.com/jquery-3.5.0.min.js"
+ integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ="
+ crossorigin="anonymous"
+></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+
+<script>
+  function getCategories() {
+        $.ajax({
+          url: 'http://localhost:3000/categories',
+          method: 'GET',
+          success: function (data) {
+            var list = $('#category');
+            data.rows.map((obj) => {
+              list.append(`<option value="${obj.id}">${obj.name}</option>`);
+            });
+          },
+        });
+      }
+
+      $(document).ready(function () {
+        getCategories();
+
+        var fileImage;
+        $('#fileImage').on('change', function(event) {
+          fileImage = event.target.files[0]
+        });
+
+        $('.btn-submit').on('click', function() {
+          var form = new FormData();
+          form.append("file", fileImage);
+          form.append("sku", $('#sku').val());
+          form.append("name", $('#name').val());
+          form.append("price", $('#price').val());
+          form.append("amount", $('#quantity').val());
+          form.append("categories", $('#category').val());
+          form.append("description", $('#description').val());
+
+          var settings = {
+            "url": "http://localhost:3000/product",
+            "method": "POST",
+            "timeout": 0,
+            "processData": false,
+            "mimeType": "multipart/form-data",
+            "contentType": false,
+            "data": form
+          };
+
+          $.ajax(settings).done(function (response) {
+            swal('Sucesso!', 'Produto adicionado com sucesso!', 'success');
+              $('#sku').val(null);
+              $('#name').val(null);
+              $('#price').val(null);
+              $('#quantity').val(null);
+              $('#category').val(null);
+              $('#description').val(null);
+          });      
+        
+        });
+
+        var form = new FormData();
+        $('#fileUpload').change(function (event) {
+          form.append("file", event.target.files[0]);
+        });
+        
+        var settings = {
+          "url": "http://localhost:3000/upload-file-store",
+          "method": "POST",
+          "timeout": 0,
+          "processData": false,
+          "mimeType": "multipart/form-data",
+          "contentType": false,
+          "data": form
+        };
+
+        $('#btn-send-file').on('click', function() {
+          $.ajax(settings).done(function (response) {
+            console.log(response);
+          });
+        });
+      });
+</script>
+</body>
 </html>
